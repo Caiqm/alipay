@@ -13,9 +13,9 @@ go get github.com/Caiqm/alipay
 import github.com/Caiqm/alipay
 ```
 
-## 支付宝支付使用
+## 如何使用
 ```go
-// 以支付宝为例，实例化支付宝支付
+// 实例化支付宝支付
 var client, err = alipay.New(appID, privateKey, isProduction)
 ```
 
@@ -35,4 +35,42 @@ var client, err = alipay.New(appID, privateKey, isProduction)
 
 ```go
 client.LoadAlipayCertPublicKey("aliPublicKey")
+```
+
+## 支付宝APP支付
+```go
+func TestClient_TradeAppPay(t *testing.T) {
+	t.Log("========== TradeAppPay ==========")
+	var p = TradeAppPay{}
+	p.NotifyURL = "http://203.86.24.181:3000/alipay"
+	p.Body = "body"
+	p.Subject = "商品标题"
+	p.OutTradeNo = "01010101"
+	p.TotalAmount = "100.00"
+	p.ProductCode = "p_1010101"
+	param, err := client.TradeAppPay(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(param)
+}
+```
+
+## 支付宝小程序登录
+```go
+// 换取授权访问令牌接口
+func TestClient_SystemOauthToken(t *testing.T) {
+    t.Log("========== SystemOauthToken ==========")
+    var p = SystemOauthToken{}
+    p.GrantType = "authorization_code"
+    p.Code = "647f16afe0b44c49a8eb1cb3c02aXX31"
+    rsp, err := client.SystemOauthToken(p)
+    if err != nil {
+    t.Fatal(err)
+    }
+    if rsp.IsFailure() {
+    t.Fatal(rsp.Msg, rsp.SubMsg)
+    }
+    t.Logf("%v", rsp)
+}
 ```
