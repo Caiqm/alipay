@@ -53,10 +53,11 @@ func TestClient_OrderPush(t *testing.T) {
 func TestClient_MerchantFileUpload(t *testing.T) {
 	t.Log("========== MerchantFileUpload ==========")
 	// 设置图片信息，fileType=true则是网络图片，fileType=false则是本地图片，需要绝对路径
-	client.LoadOptionFunc(WithFileInformation("test.png", "https://test_detail.png", "SYNC_ORDER", true))
+	client.LoadOptionFunc(WithFileInformation("test.png", "https://test_detail.png", true))
 	// 加载公钥
 	_ = client.LoadAlipayCertPublicKey("")
 	var p MerchantFileUpload
+	p.Scene = "SYNC_ORDER"
 	rsp, err := client.MerchantFileUpload(p)
 	if err != nil {
 		t.Fatal(err)

@@ -8,11 +8,7 @@ func (c *Client) OrderPush(param OrderPush) (result *OrderPushRsp, err error) {
 
 // MerchantFileUpload 商品文件上传接口 https://opendocs.alipay.com/mini/510d4a72_alipay.merchant.item.file.upload?scene=common&pathHash=c08922b1
 func (c *Client) MerchantFileUpload(param MerchantFileUpload) (result *MerchantFileUploadRsp, err error) {
-	if c.scene != "" {
-		param.Scene = c.scene
-	} else {
-		c.scene = param.Scene
-	}
+	c.scene = param.Scene
 	err = c.postFormData("POST", param, &result)
 	return
 }

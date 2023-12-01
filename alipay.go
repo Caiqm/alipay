@@ -52,16 +52,13 @@ type Client struct {
 }
 
 // 加载文件信息
-func WithFileInformation(name, path, scene string, fileType bool) OptionFunc {
+func WithFileInformation(name, path string, fileType bool) OptionFunc {
 	return func(c *Client) {
 		if name != "" {
 			c.fileName = name
 		}
 		if path != "" {
 			c.filePath = path
-		}
-		if scene != "" {
-			c.scene = scene
 		}
 		if fileType == true {
 			c.fileType = fileType
