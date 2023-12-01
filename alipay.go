@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
@@ -16,8 +17,10 @@ import (
 	"github.com/goccy/go-json"
 	"hash"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -38,10 +41,32 @@ type Client struct {
 	encryptIV        []byte
 	encryptType      string
 	encryptKey       []byte
+	fileName         string
+	filePath         string
+	fileType         bool
+	scene            string
 	location         *time.Location
 	Client           *http.Client
 	onReceivedData   func(method string, data []byte)
 	isProduction     bool
+}
+
+// 加载文件信息
+func WithFileInformation(name, path, scene string, fileType bool) OptionFunc {
+	return func(c *Client) {
+		if name != "" {
+			c.fileName = name
+		}
+		if path != "" {
+			c.filePath = path
+		}
+		if scene != "" {
+			c.scene = scene
+		}
+		if fileType == true {
+			c.fileType = fileType
+		}
+	}
 }
 
 type OptionFunc func(c *Client)
@@ -64,12 +89,17 @@ func New(appId, privateKey string, isProduction bool, opts ...OptionFunc) (nClie
 	}
 	nClient.Client = http.DefaultClient
 	nClient.location = time.Local
+	nClient.LoadOptionFunc(opts...)
+	return
+}
+
+// 加载接口链接
+func (c *Client) LoadOptionFunc(opts ...OptionFunc) {
 	for _, opt := range opts {
 		if opt != nil {
-			opt(nClient)
+			opt(c)
 		}
 	}
-	return
 }
 
 // 加载支付宝公钥
@@ -212,6 +242,64 @@ func (c *Client) doRequest(method string, param Param, result interface{}) (err 
 	return c.decode(bodyBytes, bizFieldName, param.NeedVerify(), result)
 }
 
+// 上传素材
+func (c *Client) postFormData(method string, param Param, result interface{}) (err error) {
+	// 读取文件
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	part, err := writer.CreateFormFile("file_content", c.fileName)
+	if err != nil {
+		return
+	}
+	var body io.Reader
+	// 根据类型获取图片内容
+	if c.fileType {
+		// 获取图片信息
+		resp, err1 := http.Get(c.filePath)
+		if err1 != nil {
+			err = err1
+			return
+		}
+		defer resp.Body.Close()
+		body = resp.Body
+	} else {
+		resp, err2 := os.Open(c.filePath)
+		if err2 != nil {
+			err = err2
+			return
+		}
+		defer resp.Close()
+		body = resp
+	}
+	if _, err = io.Copy(part, body); err != nil {
+		return
+	}
+	_ = writer.WriteField("scene", c.scene)
+	_ = writer.Close()
+	// 判断参数是否为空
+	values, err := c.URLValues(param)
+	if err != nil {
+		return err
+	}
+	// 创建一个请求
+	req, _ := http.NewRequest(method, c.host+"?"+values.Encode(), &buf)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Disposition", "form-data")
+	// 发起请求数据
+	rsp, err := c.Client.Do(req)
+	if err != nil {
+		return
+	}
+	defer rsp.Body.Close()
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return err
+	}
+	var apiName = param.APIName()
+	var bizFieldName = strings.Replace(apiName, ".", "_", -1) + kResponseSuffix
+	return c.decode(bodyBytes, bizFieldName, param.NeedVerify(), result)
+}
+
 // 解密返回数据
 func (c *Client) decode(data []byte, bizFieldName string, needVerifySign bool, result interface{}) (err error) {
 	var raw = make(map[string]json.RawMessage)
@@ -257,7 +345,6 @@ func (c *Client) decode(data []byte, bizFieldName string, needVerifySign bool, r
 			}
 			return rErr
 		}
-		fmt.Println(string(certBytes))
 		// 验证签名
 		if err = c.Verify(bizBytes, signBytes); err != nil {
 			return err
