@@ -10,7 +10,17 @@ go get github.com/Caiqm/alipay
 ```
 
 ```go
-import github.com/Caiqm/alipay
+import "github.com/Caiqm/alipay"
+```
+
+#### 未启用 Go module
+
+```go
+go get github.com/Caiqm/alipay
+```
+
+```go
+import "github.com/Caiqm/alipay"
 ```
 
 ## 如何使用
