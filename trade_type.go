@@ -304,13 +304,18 @@ type DepositBackInfo struct {
 // TradeCreate 统一收单交易创建接口请求参数 https://docs.open.alipay.com/api_1/alipay.trade.create/
 type TradeCreate struct {
 	Trade
-	DiscountableAmount string             `json:"discountable_amount"` // 可打折金额. 参与优惠计算的金额，单位为元，精确到小数点后两位
-	BuyerId            string             `json:"buyer_id"`            // 买家支付宝用户ID。 2088开头的16位纯数字，小程序场景下获取用户ID请参考：用户授权; 其它场景下获取用户ID请参考：网页授权获取用户信息; 注：交易的买家与卖家不能相同。
-	BuyerOpenId        string             `json:"buyer_open_id"`       // 新版接口无法获取user_id, 这里只能传递openid值
-	OpAppId            string             `json:"op_app_id,omitempty"` // 小程序支付中，商户实际经营主体的小程序应用的appid, 注意事项:商户需要先在产品管理中心绑定该小程序appid，否则下单会失败
+	DiscountableAmount string             `json:"discountable_amount"`        // 可打折金额. 参与优惠计算的金额，单位为元，精确到小数点后两位
+	BuyerId            string             `json:"buyer_id"`                   // 买家支付宝用户ID。 2088开头的16位纯数字，小程序场景下获取用户ID请参考：用户授权; 其它场景下获取用户ID请参考：网页授权获取用户信息; 注：交易的买家与卖家不能相同。
+	BuyerOpenId        string             `json:"buyer_open_id"`              // 新版接口无法获取user_id, 这里只能传递openid值
+	OpAppId            string             `json:"op_app_id,omitempty"`        // 小程序支付中，商户实际经营主体的小程序应用的appid, 注意事项:商户需要先在产品管理中心绑定该小程序appid，否则下单会失败
+	OpBuyerOpenId      string             `json:"op_buyer_open_id,omitempty"` // 买家支付宝用户唯一标识（商户实际经营主体的小程序应用关联的买家open_id）
 	GoodsDetail        []*GoodsDetailItem `json:"goods_detail,omitempty"`
 	OperatorId         string             `json:"operator_id"`
 	TerminalId         string             `json:"terminal_id"`
+	SellerId           string             `json:"seller_id,omitempty"`       // 卖家支付宝用户ID
+	TimeExpire         string             `json:"time_expire,omitempty"`     // 订单绝对超时时间。格式为yyyy-MM-dd HH:mm:ss。【示例值】2021-12-31 10:05:00
+	TimeoutExpress     string             `json:"timeout_express,omitempty"` // 订单相对超时时间。从交易创建时间开始计算。该笔订单允许的最晚付款时间，逾期将关闭交易。取值范围：1m～15d。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。 该参数数值不接受小数点， 如 1.5h，可转换为 90m。当面付场景默认值为3h。time_expire和timeout_express两者只需传入一个或者都不传，如果两者都传，优先使用time_expire。
+	PassbackParams     string             `json:"passback_params,omitempty"` // 公用回传参数。 如果请求时传递了该参数，支付宝会在异步通知时将该参数原样返回。【示例值】merchantBizType%3d3C%26merchantBizNo%3d2016010101111
 }
 
 func (t TradeCreate) APIName() string {
