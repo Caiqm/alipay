@@ -4,6 +4,25 @@ import (
 	"testing"
 )
 
+func TestClient_TradeMpPay(t *testing.T) {
+	t.Log("========== TradeMpPay ==========")
+	var p = TradeCreate{}
+	p.NotifyURL = "http://203.86.24.181:3000/alipay"
+	p.Body = "body"
+	p.Subject = "商品标题"
+	p.OutTradeNo = "TSD2024112112171234567892"
+	p.TotalAmount = "0.01"
+	p.ProductCode = "JSAPI_PAY"
+	p.OpAppId = ""
+	p.OpBuyerOpenId = "086_W-"
+
+	param, err := client.TradeCreate(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(param)
+}
+
 func TestClient_TradeAppPay(t *testing.T) {
 	t.Log("========== TradeAppPay ==========")
 	var p = TradeAppPay{}
