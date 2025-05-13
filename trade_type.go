@@ -7,11 +7,14 @@ type Trade struct {
 	AppAuthToken string `json:"-"` // 可选
 
 	// biz content，这四个参数是必须的
-	Body        string `json:"body,omitempty"`
-	Subject     string `json:"subject"`      // 订单标题
-	OutTradeNo  string `json:"out_trade_no"` // 商户订单号，64个字符以内、可包含字母、数字、下划线；需保证在商户端不重复
-	TotalAmount string `json:"total_amount"` // 订单总金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]
-	ProductCode string `json:"product_code"` // 销售产品码，与支付宝签约的产品码名称。 参考官方文档, App 支付时默认值为 QUICK_MSECURITY_PAY
+	Body            string `json:"body,omitempty"`
+	Subject         string `json:"subject"`                     // 订单标题
+	OutTradeNo      string `json:"out_trade_no"`                // 商户订单号，64个字符以内、可包含字母、数字、下划线；需保证在商户端不重复
+	TotalAmount     string `json:"total_amount"`                // 订单总金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]
+	ProductCode     string `json:"product_code"`                // 销售产品码，与支付宝签约的产品码名称。 参考官方文档, App 支付时默认值为 QUICK_MSECURITY_PAY
+	TimeExpire      string `json:"time_expire,omitempty"`       // 绝对超时时间，格式为yyyy-MM-dd HH:mm:ss
+	MerchantOrderNo string `json:"merchant_order_no,omitempty"` // 商户原始订单号，最大长度限制32位
+	PassbackParams  string `json:"passback_params,omitempty"`   // 公用回传参数。 如果请求时传递了该参数，支付宝会在异步通知时将该参数原样返回。【示例值】merchantBizType%3d3C%26merchantBizNo%3d2016010101111
 }
 
 // TradePagePay 统一收单下单并支付页面接口请求参数 https://opendocs.alipay.com/apis/api_1/alipay.trade.page.pay
@@ -315,7 +318,6 @@ type TradeCreate struct {
 	SellerId           string             `json:"seller_id,omitempty"`       // 卖家支付宝用户ID
 	TimeExpire         string             `json:"time_expire,omitempty"`     // 订单绝对超时时间。格式为yyyy-MM-dd HH:mm:ss。【示例值】2021-12-31 10:05:00
 	TimeoutExpress     string             `json:"timeout_express,omitempty"` // 订单相对超时时间。从交易创建时间开始计算。该笔订单允许的最晚付款时间，逾期将关闭交易。取值范围：1m～15d。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。 该参数数值不接受小数点， 如 1.5h，可转换为 90m。当面付场景默认值为3h。time_expire和timeout_express两者只需传入一个或者都不传，如果两者都传，优先使用time_expire。
-	PassbackParams     string             `json:"passback_params,omitempty"` // 公用回传参数。 如果请求时传递了该参数，支付宝会在异步通知时将该参数原样返回。【示例值】merchantBizType%3d3C%26merchantBizNo%3d2016010101111
 }
 
 func (t TradeCreate) APIName() string {
