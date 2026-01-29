@@ -82,3 +82,28 @@ func TestClient_TradeQuery(t *testing.T) {
 	}
 	t.Log(param)
 }
+
+func TestClient_TradeRefund(t *testing.T) {
+	t.Log("========== TradeRefund ==========")
+	var p = TradeRefund{}
+	p.OutTradeNo = ""
+	p.RefundAmount = ""
+	p.OutRequestNo = ""
+	param, err := client.TradeRefund(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(param)
+}
+
+func TestClient_TradeFastPayRefundQuery(t *testing.T) {
+	t.Log("========== TradeFastPayRefundQuery ==========")
+	var p = TradeFastPayRefundQuery{}
+	p.OutTradeNo = ""
+	p.OutRequestNo = ""
+	param, err := client.TradeFastPayRefundQuery(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(param)
+}
