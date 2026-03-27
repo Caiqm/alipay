@@ -8,6 +8,7 @@ import (
 var (
 	client *Client
 	appId  = ""
+	pubkey = ""
 	priKey = ""
 )
 
@@ -17,6 +18,7 @@ func init() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	_ = client.LoadAlipayCertPublicKey(pubkey)
 	client.OnReceivedData(func(method string, data []byte) {
 		log.Println(method, string(data))
 	})

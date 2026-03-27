@@ -14,7 +14,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/goccy/go-json"
 	"hash"
 	"io"
 	"mime/multipart"
@@ -23,6 +22,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/goccy/go-json"
 )
 
 var (
@@ -344,7 +345,7 @@ func (c *Client) decode(data []byte, bizFieldName string, needVerifySign bool, r
 		}
 		// 验证签名
 		if err = c.Verify(bizBytes, signBytes); err != nil {
-			return err
+			return fmt.Errorf("验证签名失败，%s", err.Error())
 		}
 	}
 	// 返回数据
